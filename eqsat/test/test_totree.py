@@ -33,8 +33,23 @@ class TestTransformation(object):
         add2 = Node('int_add', [add1, add1])
         assert tree == Node('int_add', [add2, a0])
 
-    def make_tree(self, f, args):
+    def test_tree_with_if(self):
+        def f(x, y, z):
+            if x:
+                return y + 1
+            if y:
+                return z + 1
+            else:
+                return 5
+        tree = self.make_tree(f, [int, int, int], True)
+        assert tree == Node('tree_if', [
+                        Node('int_is_true', [ArgumentNode(0)]),
+                        ArgumentNode(1), ArgumentNode(2)])
+
+    def make_tree(self, f, args, show=False):
         graph = self.make_graph(f, args)
+        if show:
+            graph.show()
         return transform_graph(graph)
 
 
