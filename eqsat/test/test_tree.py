@@ -18,3 +18,11 @@ def test_constant_node():
 def test_argument_node():
     t = ArgumentNode(99)
     assert t.position == 99
+
+def test_tree_equality():
+    t = Node('asdf', [ArgumentNode(1), ConstantNode(234)])
+    tt = Node('asdf', [ArgumentNode(1), ConstantNode(234)])
+    ttt = Node('asdf', [ArgumentNode(1), ConstantNode(233)])
+    assert t == tt
+    assert t != ttt
+
