@@ -1,17 +1,40 @@
-from pypy.translator.interactive import Translation
 from eqsat.totree import transform_graph
+from eqsat.tree import ArgumentNode, Node, ConstantNode
+
+from pypy.objspace.flow import model as flowmodel
+from pypy.translator.backendopt import support
+from pypy.translator.interactive import Translation
+
 class TestTransformation(object):
     def make_graph(self, f, arguments):
         t = Translation(f)
         t.rtype(arguments)
         return t.context.graphs[0]
 
-    def test_very_simple(self):
+    def test_very_simple_alias_add_1(self):
         def f(x):
             return x + 1
-        graph = self.make_graph(f, [int])
-        tree = transform_graph(graph)
+        tree = self.make_tree(f, [int])
         assert tree.name == "int_add"
         assert len(tree.children) == 2
         assert tree.children[0].position == 0
         assert tree.children[1].value.value == 1
+
+    def test_slightly_less_simple(self):
+        def f(x, y):
+            z = x * y + 1
+            return z + z + x
+        tree = self.make_tree(f, [int, int])
+        a0 = ArgumentNode(0)
+        a1 = ArgumentNode(1)
+        m  = Node('int_mul', [a0, a1])
+        one = ConstantNode(flowmodel.Constant(1))
+        add1 = Node('int_add', [m, one])
+        add2 = Node('int_add', [add1, add1])
+        assert tree == Node('int_add', [add2, a0])
+
+    def make_tree(self, f, args):
+        graph = self.make_graph(f, args)
+        return transform_graph(graph)
+
+
