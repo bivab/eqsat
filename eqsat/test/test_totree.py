@@ -32,6 +32,7 @@ class TestTransformation(object):
         add1 = Node('int_add', [m, one])
         add2 = Node('int_add', [add1, add1])
         assert tree == Node('int_add', [add2, a0])
+        tree.view()
 
     def test_tree_with_if(self):
         def f(x, y, z):
