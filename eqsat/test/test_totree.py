@@ -47,6 +47,17 @@ class TestTransformation(object):
                         Node('int_is_true', [ArgumentNode(0)]),
                         ArgumentNode(1), ArgumentNode(2)])
 
+    def test_tree_simple_if(self):
+        def f(a,b):
+            if a:
+                return a
+            else:
+                return b
+        tree = self.make_tree(f, [int, int], False)
+        assert tree == Node('tree_if', [
+                        Node('int_is_true', [ArgumentNode(0)]),
+                        ArgumentNode(0), ArgumentNode(1)])
+
     def make_tree(self, f, args, show=False):
         graph = self.make_graph(f, args)
         if show:
